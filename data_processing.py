@@ -8,7 +8,7 @@ def processItemData(itemData: dict) -> dict:
     :param itemData: The flat dictionary representation of the item data
     :return: The processed item data
     """
-    groupedData = groupKeys(itemData)
+    groupedData: dict = groupKeys(itemData)
 
     try:
         if 'display' in groupedData['tag']:
@@ -51,7 +51,7 @@ def processNBT(raw: str) -> dict:
     :return: A dictionary representation of the inventory data
     """
     nbtData = decodeBase64NBT(raw)
-    nbtDataDict = {}
+    nbtDataDict: dict = {}
 
     for _, item in enumerate(nbtData['i']):
         itemData = exploreNBTTagsIteratively(item)
@@ -70,10 +70,10 @@ def inventoryData(raw: str) -> dict:
     :return: A dictionary representation of the inventory data
     """
     nbtData = decodeBase64NBT(raw)
-    inventory = {}
+    inventory: dict = {}
 
     for i, item in enumerate(nbtData['i']):
-        itemData = exploreNBTTagsIteratively(item)
+        itemData: dict = exploreNBTTagsIteratively(item)
         inventory[i] = processItemData(itemData)
 
     dictToJSON(inventory, f"hypixel_data/inventory_data/{raw[:10]}_inventory_data.json")
@@ -87,15 +87,13 @@ def processBackpackData(backpackIcons: dict, backpackContent: dict) -> dict:
     :param backpackContent:
     :return:
     """
-    sortedBackpackIcons = {int(key): value for key, value in backpackIcons.items()}
-    sortedBackpackContent = {int(key): value for key, value in backpackContent.items()}
+    sortedBackpackIcons: dict = {int(key): value for key, value in backpackIcons.items()}
+    sortedBackpackContent: dict = {int(key): value for key, value in backpackContent.items()}
 
-    print(sortedBackpackIcons)
-
-    backpackData = {}
+    backpackData: dict = {}
     for key in sortedBackpackIcons.keys():
-        iconData = processNBT(sortedBackpackIcons[key]['data'])
-        contentData = inventoryData(sortedBackpackContent[key]['data'])
+        iconData: dict = processNBT(sortedBackpackIcons[key]['data'])
+        contentData: dict = inventoryData(sortedBackpackContent[key]['data'])
 
         backpackData[key] = {
             'icon': iconData,
@@ -108,6 +106,7 @@ def processBackpackData(backpackIcons: dict, backpackContent: dict) -> dict:
 
 def processSingleItem(raw: str) -> dict:
     """
+    FUNCTION IN PROGRESS, THIS DOES NOT WORK PROPERLY CURRENTLY
     Process a single item from a base64 encoded NBT string.
     :param raw: The base64 encoded NBT data of the item
     :return: A dictionary representation of the processed item data
