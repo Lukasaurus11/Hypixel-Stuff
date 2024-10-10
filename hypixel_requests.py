@@ -1,6 +1,11 @@
 from helper_functions import *
 from requests import get
 
+"""
+TODO:
+    - Fix the imports, to import only what is necessary
+    - Reduce code redundancy. Currently a lot of the request functions have the same identical structure, and all that changes is 1 word in the URL.
+"""
 
 def getPlayerStatus(username: str) -> bool:
     """
@@ -109,7 +114,6 @@ def getMuseumData(profileID: str) -> dict:
     :param profileID:
     :return:
     """
-
     link: str = 'https://api.hypixel.net/v2/skyblock/museum'
     secretToken: str = loadSecret('secrets.json', 'hypixel-token')
     params: dict = {
@@ -131,6 +135,10 @@ def getMuseumData(profileID: str) -> dict:
 
 
 def getGameNews() -> None:
+    """
+    This function will fetch the news available from the API (it's something like the latest 10 updates)
+    :return: Nothing, but could be changed to be a dictionary of the news articles, to then be furthered processed.
+    """
     link: str = 'https://api.hypixel.net/v2/skyblock/news'
     secretToken: str = loadSecret('secrets.json', 'hypixel-token')
     params: dict = {
