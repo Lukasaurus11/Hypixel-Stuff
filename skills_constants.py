@@ -17,7 +17,8 @@ HEART_OF_THE_MOUNTAIN: dict = {
   },
   2: {
     'mining speed boost': {
-      'type': 'ability'
+      'type': 'ability',
+      'powder type': 'mithril'
     },
     'precision mining': {
       'type': 'unupgradable perk',
@@ -38,7 +39,8 @@ HEART_OF_THE_MOUNTAIN: dict = {
       'powder type': 'mithril'
     },
     'pickobulus': {
-      'type': 'ability'
+      'type': 'ability',
+      'powder type': 'mithril'    
     }
   },
   3: {
@@ -305,3 +307,17 @@ HEART_OF_THE_MOUNTAIN: dict = {
     }
   }
 }
+
+
+def calculatePowderSpent(currentLevel: int, levelCost: int) -> int:
+    """
+    Function to calculate the ammount of powder spent on a HOTM perk based on the current level and the exponential upgrade cost.
+    :param currentLevel: The current level of the user on that specific perk
+    :param levelCost: The exponential cost of that perk, gathered from the HEART_OF_THE_MOUNTAIN dictionary
+    :return: The ammount of powder the user has spent on the current perk
+    """
+    total: int = 0
+    while currentLevel > 1:
+        total += floor((currentLevel + 1) ** levelCost)
+        currentLevel -= 1
+    return total
