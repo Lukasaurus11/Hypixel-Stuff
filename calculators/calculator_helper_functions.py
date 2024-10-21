@@ -17,7 +17,7 @@ def calculateMagicFindBoostedDropChance(baseDropChance: float, magicFind: float)
     return boostedDropChance
 
 
-def cumGeoDistribution(prob, trials):
+def cumulativeGeoDistribution(prob, trials):
     """
     Calculate the cumulative probability of getting at least one success in k trials
     for a geometric distribution with success probability p.
@@ -32,5 +32,5 @@ def cumGeoDistribution(prob, trials):
         raise ValueError("Number of trials k must be at least 1.")
 
     # CDF of geometric distribution: 1 - (1 - prob)^trials
-    cumProbability = 1 - (1 - prob) ** trials
-    return cumProbability
+    cumulativeProbability = 1 - (1 - prob) ** trials
+    return cumulativeProbability

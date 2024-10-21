@@ -1,5 +1,6 @@
 from hypixel_requests import *
 from data_processing import *
+from calculators.mythological_ritual import *
 
 
 def main():
@@ -7,7 +8,7 @@ def main():
     mining_core -> where the heart of the mountain stuff is. Need to build skill tree 1st (take tree from wiki)
     :return:
     """
-
+    '''
     data = getPlayerProfiles('thefreelike')
 
     lastPlayedProfile: str
@@ -25,6 +26,7 @@ def main():
     print(processBackpackData(backpackIcons, backpackContent))
 
     getGameNews()
+    '''
 
 
 if __name__ == '__main__':
