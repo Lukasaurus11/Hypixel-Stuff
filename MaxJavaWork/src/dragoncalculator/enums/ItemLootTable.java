@@ -1,4 +1,4 @@
-package dragoncalculator;
+package dragoncalculator.enums;
 
 public enum ItemLootTable {
     DRAGON_HORN,

@@ -1,4 +1,4 @@
-package dragoncalculator;
+package dragoncalculator.enums;
 
 public enum DragonPlacements {
     FIRST(1, 30, 7),
