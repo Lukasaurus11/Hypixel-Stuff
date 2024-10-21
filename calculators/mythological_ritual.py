@@ -17,7 +17,7 @@ def noSuccessProbability(prob: float, trials: int) -> float:
     return noSuccessProb
 
 
-def cumProbabilityGroupScenario(spawnChance: list, probSinglePlayer: float, lootshareProb: float, trials: list) \
+def cumulativeProbabilityGroupScenario(spawnChance: list, probSinglePlayer: float, lootshareProb: float, trials: list) \
         -> float:
     """
     Calculate the cumulative probability of getting at least one success in a group scenario,
