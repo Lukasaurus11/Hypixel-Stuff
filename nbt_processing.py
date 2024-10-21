@@ -1,20 +1,21 @@
-from nbt import nbt
+from nbt.nbt import NBTFile, TAG_Compound, TAG_List
 from io import BytesIO
 from base64 import b64decode
 from collections import deque
 from json import JSONDecodeError, loads as json_loads
 
-def decodeBase64NBT(raw: str) -> nbt.NBTFile:
+
+def decodeBase64NBT(raw: str) -> NBTFile:
     """
     Decode base64 encoded NBT data.
     :param raw: The base64 encoded NBT data
     :return: The decoded NBT data as an NBTFile object
     """
     decodedData: bytes = b64decode(raw)
-    return nbt.NBTFile(fileobj=BytesIO(decodedData))
+    return NBTFile(fileobj=BytesIO(decodedData))
 
 
-def exploreNBTTagsIteratively(nbtData: nbt.NBTFile) -> dict:
+def exploreNBTTagsIteratively(nbtData: NBTFile) -> dict:
     """
     Explore NBT tags iteratively, remove 'i[0]' and '.tag' parts from the path,
     and return a flat dictionary representation of the NBT data.
@@ -25,16 +26,16 @@ def exploreNBTTagsIteratively(nbtData: nbt.NBTFile) -> dict:
     result: dict = {}
 
     while queue:
-        currentTag: nbt.TAG_Compound or nbt.TAG_List
+        currentTag: TAG_Compound or TAG_List
         path: str
         currentTag, path = queue.popleft()
 
-        if isinstance(currentTag, nbt.TAG_Compound):
+        if isinstance(currentTag, TAG_Compound):
             for tag in currentTag.tags:
                 newPath: str = f"{path}.{tag.name}" if path else tag.name
                 queue.append((tag, newPath))
 
-        elif isinstance(currentTag, nbt.TAG_List):
+        elif isinstance(currentTag, TAG_List):
             for i, tag in enumerate(currentTag):
                 newPath: str = f"{path}[{i}]"
                 queue.append((tag, newPath))
@@ -44,6 +45,7 @@ def exploreNBTTagsIteratively(nbtData: nbt.NBTFile) -> dict:
             result[cleanedPath] = currentTag.value
 
     return result
+
 
 def processSkullOwner(skullOwner: dict) -> dict:
     """

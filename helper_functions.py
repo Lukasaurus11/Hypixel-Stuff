@@ -38,7 +38,7 @@ def loadSecret(filename: str, secretKey: str) -> str:
     :param secretKey: the key of the secret to load
     :return: The secret loaded from the file (or an empty string if the file/key does not exist)
     """
-    data = JSONToDict(filename)
+    data: dict = JSONToDict(filename)
     return data.get(secretKey, "")
 
 

@@ -4,8 +4,10 @@ from requests import get
 """
 TODO:
     - Fix the imports, to import only what is necessary
-    - Reduce code redundancy. Currently a lot of the request functions have the same identical structure, and all that changes is 1 word in the URL.
+    - Reduce code redundancy. Currently a lot of the request functions have the same identical structure, and all that 
+    changes is 1 word in the URL.
 """
+
 
 def getPlayerStatus(username: str) -> bool:
     """
@@ -107,6 +109,7 @@ def getProfileByID(profileID: str) -> dict:
               f'{response.status_code}')
         print(response.json())
         return {}
+
 
 def getMuseumData(profileID: str) -> dict:
     """

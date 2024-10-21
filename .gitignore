@@ -2,3 +2,5 @@
 Advanced Coding/
 Advanced Data Analytics/
 *.json
+.idea/
+__pycache__/

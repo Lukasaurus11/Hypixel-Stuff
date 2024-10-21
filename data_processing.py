@@ -1,3 +1,4 @@
+from nbt.nbt import NBTFile
 from nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner
 from helper_functions import dictToJSON, groupKeys, cleanEscapeSequences, mergeLoreTags
 
@@ -12,7 +13,7 @@ def processItemData(itemData: dict) -> dict:
 
     try:
         if 'display' in groupedData['tag']:
-            display = groupedData['tag']['display']
+            display: dict = groupedData['tag']['display']
 
             if 'Name' in display:
                 display['Name'] = cleanEscapeSequences(display['Name'])
@@ -20,12 +21,12 @@ def processItemData(itemData: dict) -> dict:
             if any(key.startswith('Lore') for key in display):
                 display['Lore'] = mergeLoreTags(display)
 
-                for key in list(display.keys()):  # Remove individual lore tags
+                for key in list(display.keys()):    # Remove individual lore tags
                     if key.startswith('Lore['):
                         del display[key]
 
         if 'ExtraAttributes' in groupedData['tag']:
-            extraAttributes = groupedData['tag']['ExtraAttributes']
+            extraAttributes: dict = groupedData['tag']['ExtraAttributes']
 
             if 'recipient_name' in extraAttributes:
                 extraAttributes['recipient_name'] = cleanEscapeSequences(extraAttributes['recipient_name'])
@@ -34,7 +35,7 @@ def processItemData(itemData: dict) -> dict:
                 extraAttributes['name'] = cleanEscapeSequences(extraAttributes['name'])
 
         if 'SkullOwner' in groupedData['tag']:
-            skullOwnerData = groupedData['tag']['SkullOwner']
+            skullOwnerData: dict = groupedData['tag']['SkullOwner']
             groupedData['tag'].update(processSkullOwner(skullOwnerData))
             del groupedData['tag']['SkullOwner']
 
@@ -50,11 +51,11 @@ def processNBT(raw: str) -> dict:
     :param raw: The NBT data
     :return: A dictionary representation of the inventory data
     """
-    nbtData = decodeBase64NBT(raw)
+    nbtData: NBTFile = decodeBase64NBT(raw)
     nbtDataDict: dict = {}
 
     for _, item in enumerate(nbtData['i']):
-        itemData = exploreNBTTagsIteratively(item)
+        itemData: dict = exploreNBTTagsIteratively(item)
         nbtDataDict.update(processItemData(itemData))
 
     dictToJSON(nbtDataDict, f"hypixel_data/nbt_data/{raw[:10]}_inventory_data.json")
@@ -69,7 +70,7 @@ def inventoryData(raw: str) -> dict:
     :param raw: The NBT data of the inventory
     :return: A dictionary representation of the inventory data
     """
-    nbtData = decodeBase64NBT(raw)
+    nbtData: NBTFile = decodeBase64NBT(raw)
     inventory: dict = {}
 
     for i, item in enumerate(nbtData['i']):
@@ -111,8 +112,8 @@ def processSingleItem(raw: str) -> dict:
     :param raw: The base64 encoded NBT data of the item
     :return: A dictionary representation of the processed item data
     """
-    nbtData = decodeBase64NBT(raw)
-    itemData = exploreNBTTagsIteratively(nbtData)
+    nbtData: NBTFile = decodeBase64NBT(raw)
+    itemData: dict = exploreNBTTagsIteratively(nbtData)
 
     dictToJSON(itemData, f"hypixel_data/single_item_data/{raw[:10]}_item_data.json")
     return processItemData(itemData)
