@@ -1,5 +1,5 @@
 from nbt.nbt import NBTFile
-from nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner
+from binary_processing.nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner
 from helper_functions import dictToJSON, groupKeys, cleanEscapeSequences, mergeLoreTags
 
 

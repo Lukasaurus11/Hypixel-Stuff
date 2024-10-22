@@ -1,6 +1,4 @@
-from hypixel_requests import *
-from data_processing import *
-from calculators.mythological_ritual import *
+from calculators.calculator_helper_functions import *
 
 
 def main():
@@ -27,6 +25,7 @@ def main():
 
     getGameNews()
     '''
+    print(calculateMagicFindBoostedDropChance(0.3, 234))
 
 
 if __name__ == '__main__':
