@@ -5,6 +5,7 @@ public enum ItemLootTable {
     DRAGON_CLAW,
     EPIC_DRAGON_PET,
     LEG_DRAGON_PET,
+    ASPECT_OF_DRAGON,
     DRAGON_CHESTPLATE,
     DRAGON_LEGGINGS,
     DRGON_BOOTS,
