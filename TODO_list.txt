@@ -1,0 +1,17 @@
+TODO:
+    1. Reorganize all the files and code within the project
+        - Checked files:
+            - utils.helper_functions.py
+            - utils.data_processing.nbt_processing.py
+            - utils.hypixel_code.constants.minion_constants.py
+            - utils.hypixel_code.constants.minion_constants.py
+            - utils.hypixel_code.skills.skill_functions.py
+            - utils.hypixel_code.hypixel_requests.py
+            - simulators.minion.inferno_minion.inferno_minion_simulator.py
+            - simulators.dragon_stuff.find_best_stat_combo.py
+            - simulators.diana.burrow_chain_simulator.py
+            - simulators.statistics.statistics.py
+        - Missing files:
+            - utils.data_processing.data_processing.py (pain)
+    2. Add missing features to the project (can really think of like only 1 right now)
+    3. Document every function (lots are confusing at this point)

@@ -1,6 +1,5 @@
 .venv/
-Advanced Coding/
-Advanced Data Analytics/
-*.json
+data/secrets.json
 .idea/
 __pycache__/
+data/hypixel_data

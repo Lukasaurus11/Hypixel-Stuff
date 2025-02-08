@@ -1,9 +1,3 @@
-from math import floor
-
-"""
-Cant be asked to do the other skill information right now
-"""
-
 HEART_OF_THE_MOUNTAIN: dict = {
     1: {
         'mining speed': {
@@ -307,63 +301,15 @@ HEART_OF_THE_MOUNTAIN: dict = {
     }
 }
 
-
-def calculatePowderSpent(currentLevel: int, levelCost: int) -> int:
-    """
-    Function to calculate the amount of powder spent on a HOTM perk based on the current level and the exponential
-    upgrade cost.
-    :param currentLevel: The current level of the user on that specific perk
-    :param levelCost: The exponential cost of that perk, gathered from the HEART_OF_THE_MOUNTAIN dictionary
-    :return: The amount of powder the user has spent on the current perk
-    """
-    total: int = 0
-    while currentLevel > 1:
-        total += floor((currentLevel + 1) ** levelCost)
-        currentLevel -= 1
-    return total
-
-
-def buildHOTMTree() -> list:
-    """
-    Function to build a tree of the HEART_OF_THE_MOUNTAIN dictionary (9 x 11) to make it easier to visualize. The tree
-    will be built by level, where each level 1 starts at the 10th row and its centered in the middle of the tree
-    :return: A list to be printed as a tree
-    """
-    treeDimension: int = 11
-    tree: list = ['*' * treeDimension]
-    icon: dict = {
-        'core of the mountain': '?',
-        'ability': 'A',
-        'un-upgradable perk': 'U',
-        'glacite': 'C',
-        'gemstone': 'G',
-        'mithril': 'M'
-    }
-    for key in HEART_OF_THE_MOUNTAIN.keys():
-        tempStr: str = ''
-        for value in HEART_OF_THE_MOUNTAIN[key].values():
-            if ['ability', 'un-upgradable perk', 'core of the mountain'].__contains__(value['type']):
-                char: str = icon[value['type']]
-            else:
-                char: str = icon[value['powder type']]
-            tempStr += char
-
-        if len(tempStr) == 3:
-            tempStr = tempStr[0] + '*' + tempStr[1] + '*' + tempStr[2]
-
-        tree.append(tempStr.center(treeDimension, '*'))
-    tree.append('*' * treeDimension)
-
-    return tree[::-1]
-
-
-def printHOTMTree(tree: list) -> str:
-    """
-    Function to print the tree of the HEART_OF_THE_MOUNTAIN dictionary
-    :param tree: The tree to be printed
-    :return: A string representation of the tree
-    """
-    return '\n'.join([''.join([str(cell) for cell in row]) for row in tree])
-
-
-print(printHOTMTree(buildHOTMTree()))
+CATACOMBS_LEVELS: dict = {
+    1: 50, 2: 125, 3: 235, 4: 395, 5: 625,
+    6: 955, 7: 1425, 8: 2095, 9: 3045, 10: 4385,
+    11: 6275, 12: 8940, 13: 12700, 14: 17960, 15: 25340,
+    16: 35640, 17: 50040, 18: 70040, 19: 97640, 20: 135640,
+    21: 188140, 22: 259640, 23: 356640, 24: 488640, 25: 668640,
+    26: 911640, 27: 1239640, 28: 1684640, 29: 2284640, 30: 3084640,
+    31: 4149640, 32: 5559640, 33: 7459640, 34: 9959640, 35: 13259640,
+    36: 17559640, 37: 23159640, 38: 30359640, 39: 39559640, 40: 51559640,
+    41: 66559640, 42: 85559640, 43: 109559640, 44: 139559640, 45: 177559640,
+    46: 225559640, 47: 295559640, 48: 360559640, 49: 453559640, 50: 569809640,
+}
