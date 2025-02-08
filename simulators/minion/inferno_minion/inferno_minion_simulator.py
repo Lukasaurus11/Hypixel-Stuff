@@ -24,34 +24,16 @@ def calculateInfernoMinionSpeed(level: int, nMinion: int, minionExpanders: int, 
         2: 20
     }
 
-    # fetch the speed of the minion
     speed: float = INFERNO_MINION_SPEED[level]
-
-    # Buff x minion (18% per minion, capped at 180%)
     speedBuff: float = 0.18 * nMinion if nMinion <= 10 else 1.8
-
-    # Buff x minion expander (5% per expander)
     speedBuff += 0.05 * minionExpanders
-
-    # Buff x flycatcher (20% per flycatcher)
     speedBuff += 0.2 * flycatchers
-
-    # Buff x specified beacon parameter
     speedBuff += beaconBuff
-
-    # Buff x mithril infused
     speedBuff += 0.1 if mithrilInfused else 0
-
-    # Buff x postcard
     speedBuff += 0.05 if postCard else 0
-
-    # Buff x freewill
     speedBuff += 0.1 if freewill else 0
-
     fuelMultiplier: int = fuelSpeedMultiplier[fuelType]
-
     totalSpeedMultiplier: float = (1 + speedBuff) * (1 + fuelMultiplier)
-
     newSpeed: float = speed / totalSpeedMultiplier
 
     return round(newSpeed, 1)

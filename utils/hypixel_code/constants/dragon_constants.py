@@ -1,4 +1,4 @@
-dragons: list = [{
+DRAGONS: list = [{
     "name": "Superior Dragon",
     "baseChance": 0.04,
     "lootTable": [

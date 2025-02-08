@@ -1,6 +1,6 @@
 from numpy import exp as numpy_exp
 from numpy.random import choice, rand
-from utils.hypixel_code.constants.dragon_constants import dragons
+from utils.hypixel_code.constants.dragon_constants import DRAGONS
 from utils.hypixel_code.hypixel_requests import getBazaarInformation
 from simulators.helper_functions.calculator_helper_functions import (calculateMagicFindBoostedDropChance,
                                                                      calculateMagicFindBoostedDropChanceWithPetLuck)
@@ -124,7 +124,7 @@ def simulateDragonFight(**params) -> dict:
             'total_weight_left': 480 - item['weight']
         }
 
-    dragon: dict = choice(dragons, p=[dragon['baseChance'] for dragon in dragons])
+    dragon: dict = choice(DRAGONS, p=[dragon['baseChance'] for dragon in DRAGONS])
     for item in dragon['lootTable']:
         itemChance = item['baseChance']
         if item['name'] in ['Dragon Claw', 'Epic Ender Dragon', 'Legendary Ender Dragon', 'Aspect of the Dragons']:
