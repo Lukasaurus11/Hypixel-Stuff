@@ -27,7 +27,7 @@ This project is still in development (adding features as I get them requested, o
     pip install -r requirements.txt
     ```
 
-3. Run the setup script (not yet a thing)
+3. Run the setup script
     ```bash
     python setup.py
     ```

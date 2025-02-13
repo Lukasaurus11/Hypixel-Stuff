@@ -28,7 +28,7 @@ def calculateFightProfit(itemName: str, eyesPlaced: int) -> float:
 
     for key in armorMapping.keys():
         if key in itemName:
-            dragonType = itemName.split(' ')[0].upper() + "_FRAGMENT"
+            dragonType: str = itemName.split(' ')[0].upper() + "_FRAGMENT"
 
             return bazaarInformation[dragonType]['buyPrice'] * armorMapping[key] - \
                 bazaarInformation['SUMMONING_EYE']['buyPrice'] * eyesPlaced
@@ -56,6 +56,13 @@ def dragonScoringFunction(**params) -> float:
     """
     Function to score a given dragon fight based on the parameters given.
 
+    Weights:
+            500 - "Horn" weight (Making it more likely to drop a horn hurts us so we want to minimize the horns we might get)
+            50 - "Claw" weight (Same as above)
+            200 - "Dragon" weight (if we were to drop a pet, we want to favor that combination)
+            20 - "Profit" weight (the more profit the better)
+            5 - "Weight" weight (we want to maximize the remaining weight since it allows for more fragments to drop)
+
     example:
         - dragonScoringFunction(item_name='Superior Dragon Helmet', eyes_placed=4, legendary_chance=0.1, epic_chance=0.2,
          horn_chance=0.1, claw_chance=0.1, total_weight=100)
@@ -71,16 +78,9 @@ def dragonScoringFunction(**params) -> float:
 
     :return: The score for the given dragon fight
     """
-    """
-    500 - Horn weight (Making it more likely to drop a horn hurts us so we wanna minimize the horns we might get)
-    50 - Claw weight (Same as above)
-    200 - Dragon weight (if we were to drop a pet, we wanna favor that combination)
-    20 - Profit weight (the more profit the better)
-    5 - Weight weight (we wanna maximize the remaining weight since it allows for more fragments to drop)
-    """
-    hornPenalty = 500 * numpy_exp(params['horn_chance'] * 5)
-    clawPenalty = 50 * numpy_exp(params['claw_chance'] * 5)
-    itemProfit = calculateFightProfit(params['item_name'], params['eyes_placed'])
+    hornPenalty: float = 500 * numpy_exp(params['horn_chance'] * 5)
+    clawPenalty: float = 50 * numpy_exp(params['claw_chance'] * 5)
+    itemProfit: float = calculateFightProfit(params['item_name'], params['eyes_placed'])
 
     return (200 * (params['legendary_ender_dragon_chance'] + params['epic_ender_dragon_chance'])) + \
         (20 * itemProfit) - (hornPenalty + clawPenalty) + \
@@ -126,14 +126,14 @@ def simulateDragonFight(**params) -> dict:
 
     dragon: dict = choice(DRAGONS, p=[dragon['baseChance'] for dragon in DRAGONS])
     for item in dragon['lootTable']:
-        itemChance = item['baseChance']
+        itemChance: float = item['baseChance']
         if item['name'] in ['Dragon Claw', 'Epic Ender Dragon', 'Legendary Ender Dragon', 'Aspect of the Dragons']:
             itemChance *= eyesPlaced
 
         if 'Ender Dragon' in item['name']:
             boostedChance: float = calculateMagicFindBoostedDropChanceWithPetLuck(itemChance, magicFind, petLuck)
         else:
-            boostedChance = calculateMagicFindBoostedDropChance(itemChance, magicFind)
+            boostedChance: float = calculateMagicFindBoostedDropChance(itemChance, magicFind)
 
         if item == dragon['lootTable'][-1]:
             return createResultDict()
