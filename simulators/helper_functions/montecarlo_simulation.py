@@ -32,6 +32,8 @@ def monteCarloSimulation(trials: int, simulationFunc: Callable[..., dict],
                 beaconBuff=0.11, fuelType=2, mithrilInfused=True, eyesDrop=True, postCard=True, freewill=True))
         In the diana burrow simulation case:
             - monteCarloSimulation(1000, simulateChain, isEnderSlayerNine=True)
+        In the glossy simulation case:
+            - monteCarloSimulation(1000, simulateMining, gemstone='RUBY', refinedMind=5, miningSpeed=8200)
 
     :param trials: The number of trials to run
     :param simulationFunc: The simulation function to run
@@ -40,27 +42,48 @@ def monteCarloSimulation(trials: int, simulationFunc: Callable[..., dict],
 
     :return: The results of the simulation
     """
-    totalResults: dict = {"iteration_results": {}}
+    totalResults: dict = {"iteration_results": {}, "aggregated_results": {}, "average_results": {}}
 
     for i in range(trials):
         result: dict = simulationFunc(**kwargs)
+        score: float = scoringFunction(scoringFunc, **result) if scoringFunc else None
+        totalResults["iteration_results"][i] = {"result": result, "score": score}
 
-        if scoringFunc:
-            score: float = scoringFunction(scoringFunc, **result)
-            totalResults["iteration_results"][i] = {"result": result, "score": score}
-        else:
-            totalResults["iteration_results"][i] = {"result": result}
+    def aggregateAndAverageResults(results: list) -> tuple[dict, dict]:
+        """
+        Function to aggregate and average the results of a MonteCarlo Simulation
+        :param results: The results to process
+        :return: The aggregation and average results
+        """
+        aggregatedResults: dict = {}
+        for res in results:
+            for key, value in res.items():
+                if isinstance(value, dict):
+                    aggregatedResults.setdefault(key, {})
+                    for sub_key, sub_value in value.items():
+                        aggregatedResults[key].setdefault(sub_key, []).append(sub_value)
+                else:
+                    aggregatedResults.setdefault(key, []).append(value)
 
-    keys: dict = totalResults["iteration_results"][0]["result"].keys()
-    totalResults["aggregated_results"] = {k: [] for k in keys}
+        averagedResults: dict = {}
+        for key, values in aggregatedResults.items():
+            if isinstance(values, dict):
+                averagedResults[key] = {sub_key: sum(sub_values) / len(sub_values) for sub_key, sub_values in values.items()}
+            elif all(isinstance(v, (int, float)) for v in values):
+                averagedResults[key] = sum(values) / len(values)
 
-    for i in range(trials):
-        for k in keys:
-            totalResults["aggregated_results"][k].append(totalResults["iteration_results"][i]["result"][k])
+        return aggregatedResults, averagedResults
 
-    if scoringFunc:
-        totalResults["average_results"] = {
-            k: sum(totalResults["iteration_results"][i]["score"] for i in range(trials)) / trials for k in ["score"]
-        }
+    iterationResults: list = [
+        {**res["result"], "score": res["score"]} if res["score"] is not None else res["result"]
+        for res in totalResults["iteration_results"].values()
+    ]
+
+    aggregated: dict
+    averages: dict
+    aggregated, averages = aggregateAndAverageResults(iterationResults)
+
+    totalResults["aggregated_results"] = aggregated
+    totalResults["average_results"] = averages
 
     return totalResults
