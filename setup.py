@@ -13,7 +13,7 @@ setup(
         'numpy',
         'NBT'
     ],
-    author='Lukasaurus_',
+    author='Lukasaurus11',
     description="A project to deal with different aspects of Hypixel Skyblock",
     url="https://github.com/Lukasaurus11/Hypixel-Stuff",
     classifiers=[
