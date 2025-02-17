@@ -11,12 +11,12 @@ def findRepoRoot() -> str:
     """
     currentDirectory: str = abspath(getcwd())
 
-    while currentDirectory != dirname(currentDirectory):  # Stop at filesystem root
+    while currentDirectory != dirname(currentDirectory):
         if isdir(os_join(currentDirectory, ".git")):
 
             return currentDirectory
 
-        currentDirectory = dirname(currentDirectory)  # Move up one level
+        currentDirectory = dirname(currentDirectory)
 
     raise FileNotFoundError("Could not find the repository root. Make sure you're inside a Git repository.")
 
