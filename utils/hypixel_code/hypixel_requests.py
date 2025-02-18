@@ -108,10 +108,10 @@ def getPlayerProfiles(username: str) -> dict:
         dictToJSON(data, f'data/hypixel_data/profile_data/{username}-all-profiles.json')
 
         profileDict: dict = {
-            username: []
+            username: {}
         }
 
-        for profile in data['profiles']:
+        for i, profile in enumerate(data['profiles']):
             profileInfoDict: dict = {
                 'profile_id': profile['profile_id'],
                 'game_mode': profile.get('game_mode', "regular"),
@@ -119,7 +119,7 @@ def getPlayerProfiles(username: str) -> dict:
                 'last_played': profile['selected']
             }
 
-            profileDict[username].append(profileInfoDict)
+            profileDict[username][i] = profileInfoDict
 
         dictToJSON(profileDict, f'data/hypixel_data/profile_data/{username}-profiles.json')
         return profileDict

@@ -62,3 +62,13 @@ def processSkullOwner(skullOwner: dict) -> dict:
 
     except (KeyError, JSONDecodeError):
         return {}
+
+
+# Probably unnecessary, and can be changed with decodeBase64NBT
+def decodeCakes(data: bytes) -> NBTFile:
+    """
+    Decode gzip-compressed JSON data, trying multiple encodings.
+    :param data: The gzip-compressed data
+    :return: A dictionary with the decoded data
+    """
+    return NBTFile(fileobj=BytesIO(bytes(data)))

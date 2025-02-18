@@ -65,3 +65,9 @@ from simulators import monteCarloSimulation, simulateMining
 
 result: dict = monteCarloSimulation(1000, simulateMining, gemstone='RUBY', refinedMind=5, miningSpeed=8200)
 ```
+
+### API:
+TBA
+
+## Contributing
+If you want to contribute to this project, or want a feature to be added feel free to reach out on discord, or in game and we can discuss it further. In general I'm open to any suggestions, so don't worry about it.

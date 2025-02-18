@@ -1,11 +1,7 @@
-"""
-TODO: Add  example usages for every function and implement missing functions
-"""
-
 from collections import defaultdict
 from re import sub as re_sub
 from nbt.nbt import NBTFile
-from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner
+from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner, decodeCakes
 
 
 def decodeItemData(itemData: dict) -> dict:
@@ -26,7 +22,7 @@ def decodeItemData(itemData: dict) -> dict:
             if any(key.startswith('Lore') for key in display):
                 display['Lore'] = mergeLoreTags(display)
 
-                for key in list(display.keys()):    # Remove individual lore tags
+                for key in list(display.keys()):  # Remove individual lore tags
                     if key.startswith('Lore['):
                         del display[key]
 
@@ -38,6 +34,16 @@ def decodeItemData(itemData: dict) -> dict:
 
             if 'name' in extraAttributes:
                 extraAttributes['name'] = cleanEscapeSequences(extraAttributes['name'])
+
+            if 'new_year_cake_bag_data' in extraAttributes:
+                extraAttributes['cakes'] = {}
+                data: NBTFile = decodeCakes(extraAttributes['new_year_cake_bag_data'])
+                for i, cake in enumerate(data['i']):
+                    cakeData: dict = exploreNBTTagsIteratively(cake)
+                    extraAttributes['cakes'][i] = decodeItemData(cakeData)
+
+                del extraAttributes['new_year_cake_bag_data']
+
 
         if 'SkullOwner' in groupedData['tag']:
             skullOwnerData: dict = groupedData['tag']['SkullOwner']
@@ -94,20 +100,45 @@ def mergeLoreTags(display: dict) -> str:
     return '\n'.join(cleanEscapeSequences(line) for line in sortedLore)
 
 
-def getInformationFromJSON(jsonData: dict, uuid: str) -> dict:
+def extractJSONFields(jsonData: dict, uuid: str, profiles: dict) -> dict:
     """
     Extract different (predefined) information from a JSON dict for easy processing
 
     :param jsonData: The JSON dictionary to extract information from to then be processed
     :param uuid: The UUID of the player (in case they are in a coop)
+    :param profiles: The profile slot of the player
     :return: The information from the JSON string
     """
-    # /profile/members/{uuid}/inventory/inv_contents/data ( a lot are like this)
 
-    pass
+    profileSlot: int = 0
+    for values in profiles.values():
+        for key, value in values.items():
+            if value['last_played']:
+                profileSlot = int(key)
+                break
+
+    return {
+        'inventory': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_contents']['data'],                     # ✅ decodeInventory
+        'ender_chest': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['ender_chest_contents']['data'],           # ✅ decodeInventory
+        'potions': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['potion_bag']['data'],         # ✅ decodeInventory (might want to change the way we process potions, works fine, its just ugly)
+        'talismans': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['talisman_bag']['data'],     # ✅ decodeInventory
+        'fishing_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['fishing_bag']['data'],    # ✅ decodeInventory
+        'sacks_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['sacks_bag']['data'],        # ✅ decodeInventory (I think)
+        'quiver': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['quiver']['data'],              # ✅ decodeInventory
+        'equipped_armor': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_armor']['data'],                   # ✅ decodeInventory
+        'equipped_equipment': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['equipment_contents']['data'],
+        'personal_vault': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['personal_vault_contents']['data'],
+        'backpack': {
+            'icons': {key: jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'][key]['data']
+                      for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'])},
+            'content': {key: jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'][key]['data']
+                        for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'])}
+        },
+        'wardrobe': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['wardrobe_contents']['data'],
+    }
 
 
-
+# TODO: Check the functions below and update them as necessary (imma be honest, they are kinda bad)
 # TODO: (Look more in depth into what exactly this function does, and why it was necessary in the first place)
 def processSingleItemNBT(raw: str) -> dict:
     """
@@ -146,6 +177,7 @@ def decodeInventory(raw: str) -> dict:
     return inventory
 
 
+# Redo function as I don't like the way it is written
 def decodeBackpack(backpackIcons: dict, backpackContent: dict) -> dict:
     """
     Decode the backpack data of a player, returning a dictionary with keys as the backpack slot and values as the
