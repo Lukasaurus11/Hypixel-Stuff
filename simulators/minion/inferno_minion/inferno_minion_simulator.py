@@ -1,5 +1,10 @@
 from random import random
-from utils.hypixel_code.constants.minion_constants import INFERNO_MINION_SPEED, INFERNO_MINION_TABLE
+from utils.hypixel_code.constants.minion_constants import INFERNO_MINION_SPEED, INFERNO_MINION_TABLE, INFERNO_MINION_INVENTORY
+
+"""
+Changelog:
+- 19/02/2025 - Added some sort of checking to see when the minion runs out of available slots for new items
+"""
 
 
 def calculateInfernoMinionSpeed(level: int, nMinion: int, minionExpanders: int, flycatchers: int, beaconBuff: float,
@@ -58,6 +63,7 @@ def simulateInfernoMinion(**params) -> dict:
         - eyesDrop (bool): If the minion has the eyesdrop buff
         - postCard (bool): If the minion has the postcard buff
         - freewill (bool): If the minion has the freewill buff
+        - storage (int): The external storage slots attached to the minion
 
     :return: The average drops per 24h of having a single minion down
     """
@@ -83,15 +89,61 @@ def simulateInfernoMinion(**params) -> dict:
 
     dropTable = INFERNO_MINION_TABLE['Eyesdrops'] if params['eyesDrop'] else INFERNO_MINION_TABLE['Base']
     drops: dict = {key: 0 for key in dropTable.keys()}
-    for _ in range(int(actionsPerDay)):
+    drops['Crude Gabagool'] = 0
 
+    availableSlots: int = INFERNO_MINION_INVENTORY[level] + params['storage']
+
+    stackLimit: dict = {
+        'Crude Gabagool': 64,
+        'Chili Pepper': 64,
+        'Inferno Vertex': 64,
+        'Inferno Apex': 1,
+        'Reaper Pepper': 1,
+        'Gabagool The Fish': 1
+    }
+
+    inventory: dict = {
+        'Crude Gabagool': 0
+    }
+    slotsUsed: int = 0
+    actionsUsed: int = 0
+    flag: bool = False
+
+    for _ in range(int(actionsPerDay)):
+        actionsUsed += 1
+        if inventory['Crude Gabagool'] % stackLimit['Crude Gabagool'] == 0:
+            slotsUsed += 1
+
+        if not flag:
+            inventory['Crude Gabagool'] += 1
+
+        drops['Crude Gabagool'] += 1
         for drop, dropChance in dropTable.items():
             if random() < dropChance and fuelType == 2:
-                if drop == 'Inferno Apex' and level >= 10:
-                    drops[drop] += 2
+                quantityDropped: int = 2 if drop == 'Inferno Apex' and level >= 10 else 1
+                drops[drop] += quantityDropped
 
-                else:
-                    drops[drop] += 1
+                if not flag:
+                    if drop not in inventory:
+                        inventory[drop] = 0
 
-    drops['Crude Gabagool'] = actionsPerDay
+                    if stackLimit.get(drop, 64) == 1:
+                        slotsUsed += quantityDropped
+                    else:
+                        while quantityDropped > 0:
+                            spaceLeft: int = stackLimit[drop] - inventory[drop]
+                            if spaceLeft > 0:
+                                addAmount: int = min(quantityDropped, spaceLeft)
+                                inventory[drop] += addAmount
+                                quantityDropped -= addAmount
+                            else:
+                                slotsUsed += 1
+
+        # There's a small problem with this code, as it will say that all the slots are full even when some might
+        # still be able to receive items (e.g. if the last item is a stackable item). Will get fixed eventually
+        if slotsUsed >= availableSlots and not flag:
+            drops['actionsUsed'] = actionsUsed
+            drops['timeUsed'] = actionsUsed * minionSpeed
+            flag = True
+
     return drops

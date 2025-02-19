@@ -29,7 +29,7 @@ def monteCarloSimulation(trials: int, simulationFunc: Callable[..., dict],
             - monteCarloSimulation(1000, simulateDragonFight, dragonScoringFunction, magic_find=100, pet_luck=100, eyes_placed=4)
         In the inferno minion case:
             - monteCarloSimulation(1000, simulateInfernoMinion, level=10, nMinion=10, minionExpanders=0, flycatchers=2,
-                beaconBuff=0.11, fuelType=2, mithrilInfused=True, eyesDrop=True, postCard=True, freewill=True)
+                beaconBuff=0.11, fuelType=2, mithrilInfused=True, eyesDrop=True, postCard=True, freewill=True, storage=27)
         In the diana burrow simulation case:
             - monteCarloSimulation(1000, simulateChain, isEnderSlayerNine=True)
         In the glossy simulation case:

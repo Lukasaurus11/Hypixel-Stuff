@@ -4,22 +4,32 @@ from base64 import b64decode
 from collections import deque
 from json import JSONDecodeError, loads as json_loads
 
+"""
+Changelog:
+- 19/02/2025 - Updated decodeBase64NBT to handle more than just strings
+"""
 
-def decodeBase64NBT(raw: str) -> NBTFile:
+
+def decodeBase64NBT(raw: [str, bytes]) -> NBTFile:
     """
-    Decode base64 encoded NBT data.
-    :param raw: The base64 encoded NBT data
+    Decode encoded NBT data.
+
+    :param raw: The encoded NBT data
+
     :return: The decoded NBT data as an NBTFile object
     """
-    decodedData: bytes = b64decode(raw)
-    return NBTFile(fileobj=BytesIO(decodedData))
+    if isinstance(raw, str):
+        raw: bytes = b64decode(raw)
+    return NBTFile(fileobj=BytesIO(raw))
 
 
 def exploreNBTTagsIteratively(nbtData: NBTFile) -> dict:
     """
-    Explore NBT tags iteratively, remove 'i[0]' and '.tag' parts from the path,
-    and return a flat dictionary representation of the NBT data.
+    Explore NBT tags iteratively, remove 'i[0]' and '.tag' parts from the path, and return a flat dictionary
+    representation of the NBT data.
+
     :param nbtData: The NBT data as an NBTFile object
+
     :return: A flat dictionary representation of the NBT data
     """
     queue: deque = deque([(nbtData, '')])
@@ -50,25 +60,17 @@ def exploreNBTTagsIteratively(nbtData: NBTFile) -> dict:
 def processSkullOwner(skullOwner: dict) -> dict:
     """
     Process the SkullOwner data, decode the base64 encoded texture value, and return the processed data.
+
     :param skullOwner: The SkullOwner dictionary
+
     :return: A dictionary with the processed SkullOwner data
     """
     try:
-        textureValue = skullOwner['Properties']['textures[0]']['Value']
-        padding = '=' * ((4 - len(textureValue) % 4) % 4)   # Add padding to the base64 string if necessary
-        decodedTexture = b64decode(textureValue + padding).decode('utf-8')
+        textureValue: str = skullOwner['Properties']['textures[0]']['Value']
+        padding: str = '=' * ((4 - len(textureValue) % 4) % 4)   # Add padding to the base64 string if necessary
+        decodedTexture: str = b64decode(textureValue + padding).decode('utf-8')
 
         return {'ExtraData': json_loads(decodedTexture)}
 
     except (KeyError, JSONDecodeError):
         return {}
-
-
-# Probably unnecessary, and can be changed with decodeBase64NBT
-def decodeCakes(data: bytes) -> NBTFile:
-    """
-    Decode gzip-compressed JSON data, trying multiple encodings.
-    :param data: The gzip-compressed data
-    :return: A dictionary with the decoded data
-    """
-    return NBTFile(fileobj=BytesIO(bytes(data)))

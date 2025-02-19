@@ -1,13 +1,21 @@
 from collections import defaultdict
 from re import sub as re_sub
 from nbt.nbt import NBTFile
-from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner, decodeCakes
+from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner
 
+"""
+Changelog:
+- 19/02/2025 - Finally got into fixing this file. Added extractJSONFields, renamed function to decodeData (from decodeInventory),
+    added decodeWardrobe. Updated function docstrings (as necessary).
+"""
 
 def decodeItemData(itemData: dict) -> dict:
     """
-    Process individual item data, including cleaning escape sequences and handling SkullOwner data.
+    Process individual item data, including cleaning escape sequences and handling SkullOwner data (this function
+    pretty much does miracles at this point).
+
     :param itemData: The flat dictionary representation of the item data
+
     :return: The processed item data
     """
     groupedData: dict = groupKeys(itemData)
@@ -37,7 +45,7 @@ def decodeItemData(itemData: dict) -> dict:
 
             if 'new_year_cake_bag_data' in extraAttributes:
                 extraAttributes['cakes'] = {}
-                data: NBTFile = decodeCakes(extraAttributes['new_year_cake_bag_data'])
+                data: NBTFile = decodeBase64NBT(extraAttributes['new_year_cake_bag_data'])
                 for i, cake in enumerate(data['i']):
                     cakeData: dict = exploreNBTTagsIteratively(cake)
                     extraAttributes['cakes'][i] = decodeItemData(cakeData)
@@ -59,7 +67,9 @@ def decodeItemData(itemData: dict) -> dict:
 def groupKeys(data: dict) -> dict:
     """
     Group keys with dots into nested dictionaries.
+
     :param data: The flat dictionary to group
+
     :return: A nested dictionary representation of the data
     """
     grouped: defaultdict = defaultdict(dict)
@@ -83,7 +93,9 @@ def groupKeys(data: dict) -> dict:
 def cleanEscapeSequences(text: str) -> str:
     """
     Removes (\u00a7.|§.) escape sequences from a string.
+
     :param text: A string that may contain escape sequences
+
     :return: The string with escape sequences removed
     """
     return re_sub(r'(§.)', '', text)
@@ -92,7 +104,9 @@ def cleanEscapeSequences(text: str) -> str:
 def mergeLoreTags(display: dict) -> str:
     """
     Merge individual Lore tags into a single string. We use an order to keep the lore tags in the correct order.
-    :param display: the display dictionary in which the lore tags are stored
+
+    :param display: The display dictionary in which the lore tags are stored
+
     :return: A single string containing all the lore tags
     """
     loreList: list = [(int(key[5:-1]), display[key]) for key in display.keys() if key.startswith('Lore[')]
@@ -107,6 +121,7 @@ def extractJSONFields(jsonData: dict, uuid: str, profiles: dict) -> dict:
     :param jsonData: The JSON dictionary to extract information from to then be processed
     :param uuid: The UUID of the player (in case they are in a coop)
     :param profiles: The profile slot of the player
+
     :return: The information from the JSON string
     """
 
@@ -118,53 +133,49 @@ def extractJSONFields(jsonData: dict, uuid: str, profiles: dict) -> dict:
                 break
 
     return {
-        'inventory': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_contents']['data'],                     # ✅ decodeInventory
-        'ender_chest': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['ender_chest_contents']['data'],           # ✅ decodeInventory
-        'potions': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['potion_bag']['data'],         # ✅ decodeInventory (might want to change the way we process potions, works fine, its just ugly)
-        'talismans': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['talisman_bag']['data'],     # ✅ decodeInventory
-        'fishing_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['fishing_bag']['data'],    # ✅ decodeInventory
-        'sacks_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['sacks_bag']['data'],        # ✅ decodeInventory (I think)
-        'quiver': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['quiver']['data'],              # ✅ decodeInventory
-        'equipped_armor': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_armor']['data'],                   # ✅ decodeInventory
-        'equipped_equipment': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['equipment_contents']['data'],
-        'personal_vault': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['personal_vault_contents']['data'],
+        'inventory': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_contents']['data'],                    
+        'ender_chest': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['ender_chest_contents']['data'],          
+        'potions': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['potion_bag']['data'],
+        'talismans': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['talisman_bag']['data'],    
+        'fishing_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['fishing_bag']['data'],   
+        'sacks_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['sacks_bag']['data'],
+        'quiver': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['quiver']['data'],             
+        'equipped_armor': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_armor']['data'],                  
+        'equipped_equipment': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['equipment_contents']['data'],     
+        'personal_vault': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['personal_vault_contents']['data'],    
         'backpack': {
             'icons': {key: jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'][key]['data']
-                      for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'])},
+                      for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'], key=int)},
             'content': {key: jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'][key]['data']
-                        for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'])}
+                        for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'],key=int)}
         },
+        'equipped_wardrobe_slot': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['wardrobe_equipped_slot'],
         'wardrobe': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['wardrobe_contents']['data'],
     }
 
 
-# TODO: Check the functions below and update them as necessary (imma be honest, they are kinda bad)
-# TODO: (Look more in depth into what exactly this function does, and why it was necessary in the first place)
-def processSingleItemNBT(raw: str) -> dict:
+def decodeData(raw: str) -> dict:
     """
-    Process the NBT data of an item
+    Decode the raw NBT data of multiple items into a dictionary representation, everything 0-indexed by a slot number,
+    unless there is only one item.
 
-    :param raw: The NBT data
-    :return: A dictionary representation of the inventory data
-    """
-    nbtData: NBTFile = decodeBase64NBT(raw)
-    nbtDataDict: dict = {}
+    Tested for:
+        - Inventory
+        - Ender Chest
+        - Backpack (both icons and content)
+        - Personal Vault
+        - Potions
+        - Talismans
+        - Fishing Bag
+        - Sacks Bag
+        - Quiver
+        - Equipped Armor
+        - Equipped Equipment
+        - Wardrobe (Better use the decodeWardrobe function for this)
 
-    for _, item in enumerate(nbtData['i']):
-        itemData: dict = exploreNBTTagsIteratively(item)
-        nbtDataDict.update(decodeItemData(itemData))
+    :param raw: The raw NBT data to decode
 
-    # dictToJSON(nbtDataDict, f"data/hypixel_data/nbt_data/{raw[:10]}_inventory_data.json")
-    return nbtDataDict
-
-
-def decodeInventory(raw: str) -> dict:
-    """
-    Decode the inventory data of the entire inventory of a player, returning a dictionary with keys as the item slot
-    and values as the item data. The keys start at 0, where 0 to 8 indicate the hotbar, 9 to 35 indicate the main
-    inventory
-    :param raw: The NBT data of the inventory
-    :return: A dictionary representation of the inventory data
+    :return: A dictionary representation of the NBT data
     """
     nbtData: NBTFile = decodeBase64NBT(raw)
     inventory: dict = {}
@@ -173,32 +184,36 @@ def decodeInventory(raw: str) -> dict:
         itemData: dict = exploreNBTTagsIteratively(item)
         inventory[i] = decodeItemData(itemData)
 
-    # dictToJSON(inventory, f"hypixel_data/inventory_data/{raw[:10]}_inventory_data.json")
-    return inventory
+    return inventory[0] if len(inventory) == 1 else inventory
 
 
-# Redo function as I don't like the way it is written
-def decodeBackpack(backpackIcons: dict, backpackContent: dict) -> dict:
+def decodeWardrobe(wardrobeData: str, currentEquippedSlot: int, currentArmor: str) -> dict:
     """
-    Decode the backpack data of a player, returning a dictionary with keys as the backpack slot and values as the
-    backpack data.
+    This function receives the raw wardrobe data, as fetched from the API profile, and decodes it into a dictionary
 
-    :param backpackIcons: The data about the different backpack icons (their texture and name)
-    :param backpackContent: All the content of the backpacks
-    :return: A dictionary representation of the backpack data
+    :param wardrobeData: The raw wardrobe data from the API
+    :param currentEquippedSlot: The currently equipped wardrobe slot (to fill the missing slot)
+    :param currentArmor: The raw data of the currently equipped armor from the API (to fill the missing slot)
+
+    :return: The dictionary representation of the wardrobe data
     """
-    sortedBackpackIcons: dict = {int(key): value for key, value in backpackIcons.items()}
-    sortedBackpackContent: dict = {int(key): value for key, value in backpackContent.items()}
+    wardrobeItems: dict = decodeData(wardrobeData)
+    wardrobePages: dict = {
+        0: {index: armorPiece for index, armorPiece in wardrobeItems.items() if 0 <= index <= 35},
+        1: {index - 36: armorPiece for index, armorPiece in wardrobeItems.items() if 36 <= index <= 71},
+    }
 
-    backpackData: dict = {}
-    for key in sortedBackpackIcons.keys():
-        iconData: dict = processSingleItemNBT(sortedBackpackIcons[key]['data'])
-        contentData: dict = decodeInventory(sortedBackpackContent[key]['data'])
+    finalWardrobeInfo: dict = {
+        (page * 9) + i: {
+            'helmet': items.get(i),
+            'chestplate': items.get(i + 9),
+            'leggings': items.get(i + 18),
+            'boots': items.get(i + 27),
+        } for page, items in wardrobePages.items() for i in range(9)
+    }
 
-        backpackData[key] = {
-            'icon': iconData,
-            'content': contentData
-        }
+    currentArmor: dict = decodeData(currentArmor)
+    finalWardrobeInfo[currentEquippedSlot - 1] = dict(zip(['helmet', 'chestplate', 'leggings', 'boots'],
+                                                          reversed(currentArmor.values())))
 
-    # dictToJSON(backpackData, f"hypixel_data/backpack_data/backpack_data.json")
-    return backpackData
+    return finalWardrobeInfo

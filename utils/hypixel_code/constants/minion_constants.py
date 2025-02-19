@@ -11,6 +11,21 @@ INFERNO_MINION_SPEED: dict = {
     10: 728,
     11: 697
 }
+
+INFERNO_MINION_INVENTORY: dict = {
+    1: 1,
+    2: 3,
+    3: 3,
+    4: 6,
+    5: 6,
+    6: 9,
+    7: 9,
+    8: 12,
+    9: 12,
+    10: 15,
+    11: 15
+}
+
 INFERNO_MINION_TABLE: dict = {
     'Base': {
         'Chili Pepper': 1 / 136,

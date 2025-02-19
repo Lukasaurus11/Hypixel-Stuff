@@ -3,7 +3,7 @@ from time import time as get_current_time
 from requests import get
 from requests.models import Response
 from re import search as re_search
-from utils.data_processing.data_processing import decodeInventory
+from utils.data_processing.data_processing import decodeData
 from utils.helper_functions import loadSecret, getUUID, getLastPlayedProfile, dictToJSON, JSONToDict, returnFileLife
 from utils.hypixel_code.skills.skill_functions import calculateDungeonLevel
 
@@ -190,7 +190,7 @@ def getGameNews() -> None:
         return
 
 
-# There's definitely a better way to approach the checking aspect
+# There's definitely a better way to approach the checking aspect (will prob nuke this function, TBD)
 def getPlayerInfo(username: str, activity: str, *args) -> Union[None, dict, dict[Any, Any]]:
     """
     This functions returns the player's information based on the activity
@@ -248,7 +248,7 @@ def getPlayerInfo(username: str, activity: str, *args) -> Union[None, dict, dict
         profileData: dict = getProfileByID(lastPlayedProfile)
 
         inventory: str = profileData['profile']['members'][playerUUID]['inventory']['inv_contents']['data']
-        inventory: dict = decodeInventory(inventory)
+        inventory: dict = decodeData(inventory)
 
         # Go through the inventory data, using regex to match what we are interested in
         # For example, if the player has a Hyperion, with Wither Impact , we will set the Hyperion key to True
