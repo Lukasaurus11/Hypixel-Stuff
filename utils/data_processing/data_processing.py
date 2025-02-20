@@ -5,8 +5,9 @@ from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTags
 
 """
 Changelog:
-- 19/02/2025 - Finally got into fixing this file. Added extractJSONFields, renamed function to decodeData (from decodeInventory),
+    - 19-02-2025 - Finally got into fixing this file. Added extractJSONFields, renamed function to decodeData (from decodeInventory),
     added decodeWardrobe. Updated function docstrings (as necessary).
+    - 20-02-2025 - Updated the function extractJSONFields to work with the new Profile JSON result.
 """
 
 def decodeItemData(itemData: dict) -> dict:
@@ -116,41 +117,34 @@ def mergeLoreTags(display: dict) -> str:
 
 def extractJSONFields(jsonData: dict, uuid: str, profiles: dict) -> dict:
     """
-    Extract different (predefined) information from a JSON dict for easy processing
+    Extract different (predefined) information from a JSON dict for easy processing. Should probably add some sort of
+    checking in case the API for a component is off
 
     :param jsonData: The JSON dictionary to extract information from to then be processed
     :param uuid: The UUID of the player (in case they are in a coop)
     :param profiles: The profile slot of the player
-
     :return: The information from the JSON string
     """
 
-    profileSlot: int = 0
-    for values in profiles.values():
-        for key, value in values.items():
-            if value['last_played']:
-                profileSlot = int(key)
-                break
-
     return {
-        'inventory': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_contents']['data'],                    
-        'ender_chest': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['ender_chest_contents']['data'],          
-        'potions': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['potion_bag']['data'],
-        'talismans': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['talisman_bag']['data'],    
-        'fishing_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['fishing_bag']['data'],   
-        'sacks_bag': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['sacks_bag']['data'],
-        'quiver': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['bag_contents']['quiver']['data'],             
-        'equipped_armor': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['inv_armor']['data'],                  
-        'equipped_equipment': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['equipment_contents']['data'],     
-        'personal_vault': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['personal_vault_contents']['data'],    
+        'inventory': jsonData['profile']['members'][uuid]['inventory']['inv_contents']['data'],
+        'ender_chest': jsonData['profile']['members'][uuid]['inventory']['ender_chest_contents']['data'],
+        'potions': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['potion_bag']['data'],
+        'talismans': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['talisman_bag']['data'],
+        'fishing_bag': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['fishing_bag']['data'],
+        'sacks_bag': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['sacks_bag']['data'],
+        'quiver': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['quiver']['data'],
+        'equipped_armor': jsonData['profile']['members'][uuid]['inventory']['inv_armor']['data'],
+        'equipped_equipment': jsonData['profile']['members'][uuid]['inventory']['equipment_contents']['data'],
+        'personal_vault': jsonData['profile']['members'][uuid]['inventory']['personal_vault_contents']['data'],
         'backpack': {
-            'icons': {key: jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'][key]['data']
-                      for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_icons'], key=int)},
-            'content': {key: jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'][key]['data']
-                        for key in sorted(jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['backpack_contents'],key=int)}
+            'icons': {key: jsonData['profile']['members'][uuid]['inventory']['backpack_icons'][key]['data']
+                      for key in sorted(jsonData['profile']['members'][uuid]['inventory']['backpack_icons'], key=int)},
+            'content': {key: jsonData['profile']['members'][uuid]['inventory']['backpack_contents'][key]['data']
+                        for key in sorted(jsonData['profile']['members'][uuid]['inventory']['backpack_contents'],key=int)}
         },
-        'equipped_wardrobe_slot': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['wardrobe_equipped_slot'],
-        'wardrobe': jsonData['profiles'][profileSlot]['members'][uuid]['inventory']['wardrobe_contents']['data'],
+        'equipped_wardrobe_slot': jsonData['profile']['members'][uuid]['inventory']['wardrobe_equipped_slot'],
+        'wardrobe': jsonData['profile']['members'][uuid]['inventory']['wardrobe_contents']['data'],
     }
 
 

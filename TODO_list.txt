@@ -1,5 +1,4 @@
 TODO:
     - Reorganize the code (make a folder for API related functions instead of having them in utils folder)
     - Add missing documentation
-    - Fix data_processing folder
     - Finish the README.md file

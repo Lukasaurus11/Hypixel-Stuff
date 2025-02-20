@@ -3,6 +3,10 @@ from requests import Response, post
 from os import getcwd, makedirs
 from os.path import abspath, dirname, isdir, join as os_join, getmtime
 
+"""
+Changelog:
+    - 20-02-2025 - Redid the getProfileIDFromLastPlayed function to getProfileIDFromProfileName
+"""
 
 def findRepoRoot() -> str:
     """
@@ -133,19 +137,21 @@ def getUUID(username: str) -> str:
         return ""
 
 
-def getLastPlayedProfile(profiles: dict) -> str:
+def getProfileIDFromProfileName(profilesInformation: dict, profileName: str=None) -> str:
     """
-    The function returns which profile is the last played by the player
-    :param profiles: The data of all the players profiles, given by the getPlayerProfiles function
-    :return: The profile id and the users UUID (located under the UUID-cache.json file)
+    This function will return the profile ID of the profile with the given name, replacing the function getProfileIDFromLastPlayed
+
+    :param profilesInformation: The information of the profiles
+    :param profileName: The name of the profile we are looking for
+    :return: The profile ID of the profile with the given name
     """
-    player: str = list(profiles.keys())[0]
+    for profiles in profilesInformation.values():
+        for name, profile in profiles.items():
+            if profileName is None:
+                if profile['last_played']:
+                    return profile['profile_id']
+            else:
+                if profileName == name:
+                    return profile['profile_id']
 
-    lastPlayed: str = ""
-    for profile in profiles[player]:
-        print(profile)
-        if profile['last_played']:
-            lastPlayed = profile['profile_id']
-            break
-
-    return lastPlayed
+    return ""
