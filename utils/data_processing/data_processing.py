@@ -116,13 +116,12 @@ def mergeLoreTags(display: dict) -> str:
     return '\n'.join(cleanEscapeSequences(line) for line in sortedLore)
 
 
-def extractJSONFields(jsonData: dict, uuid: str, profiles: dict) -> dict:
+def extractJSONFields(jsonData: dict, uuid: str) -> dict:
     """
     Extract different (predefined) information from a JSON dict for easy processing.
 
     :param jsonData: The JSON dictionary to extract information from to then be processed
     :param uuid: The UUID of the player (in case they are in a coop)
-    :param profiles: The profile slot of the player
     :return: The information from the JSON string
     """
     profile: dict = jsonData.get('profile', {}).get('members', {}).get(uuid, {}).get('inventory', {})

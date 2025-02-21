@@ -10,6 +10,7 @@ Changelog:
     - 20-02-2025 
         - Redid a bunch of functions inside of the file
         - Moved file to the api/hypixel_requests folder
+    - 21-02-2025 - Fixed a problem with getProfileInformationByProfileName, where the name was getting incorrectly passed when saving to file
 """
 
 def getBazaarInformation() -> dict:
@@ -87,7 +88,8 @@ def getProfileInformationByProfileName(profilesDict: dict, profileName: str=None
 
     if response.status_code == 200:
         data: dict = response.json()
-        dictToJSON(data, f'data/hypixel_data/profile_data/{list(profilesDict.keys())[0]}-{profileName if None else "last-played"}.json')
+        dictToJSON(data,f'data/hypixel_data/profile_data/{list(profilesDict.keys())[0]}-'
+                        f'{profileName if profileName not in [None, "None"] else "last-played"}.json')
         return data
 
     else:
