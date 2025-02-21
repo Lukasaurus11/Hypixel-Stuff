@@ -12,7 +12,6 @@ def scoringFunction(scoringFunc: Optional[Callable[..., float]] = None, **kwargs
 
     :param scoringFunc: The scoring function to use (default is None)
     :param kwargs: The parameters to pass to the scoring function
-
     :return: The score of the simulation
     """
 
@@ -39,7 +38,6 @@ def monteCarloSimulation(trials: int, simulationFunc: Callable[..., dict],
     :param simulationFunc: The simulation function to run
     :param scoringFunc: The scoring function to use (default is None)
     :param kwargs: The parameters to pass to the simulation function
-
     :return: The results of the simulation
     """
     totalResults: dict = {"iteration_results": {}, "aggregated_results": {}, "average_results": {}}

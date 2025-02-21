@@ -1,29 +1,20 @@
-INFERNO_MINION_SPEED: dict = {
-    1: 1013,
-    2: 982,
-    3: 950,
-    4: 919,
-    5: 886,
-    6: 855,
-    7: 823,
-    8: 792,
-    9: 760,
-    10: 728,
-    11: 697
-}
+"""
+Changelog:
+    - 21-02-2025 - Merged the two inferno constants into one constant, INFERNO_MINION, for it to be more organized
+"""
 
-INFERNO_MINION_INVENTORY: dict = {
-    1: 1,
-    2: 3,
-    3: 3,
-    4: 6,
-    5: 6,
-    6: 9,
-    7: 9,
-    8: 12,
-    9: 12,
-    10: 15,
-    11: 15
+INFERNO_MINION: dict = {
+    1: {'speed': 1013, 'storage': 1},
+    2: {'speed': 982, 'storage': 3},
+    3: {'speed': 950, 'storage': 3},
+    4: {'speed': 919, 'storage': 6},
+    5: {'speed': 886, 'storage': 6},
+    6: {'speed': 855, 'storage': 9},
+    7: {'speed': 823, 'storage': 9},
+    8: {'speed': 792, 'storage': 12},
+    9: {'speed': 760, 'storage': 12},
+    10: {'speed': 728, 'storage': 15},
+    11: {'speed': 697, 'storage': 15}
 }
 
 INFERNO_MINION_TABLE: dict = {

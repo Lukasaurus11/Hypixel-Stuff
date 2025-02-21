@@ -1,0 +1,4 @@
+from .calculator_helper_functions import calculateMagicFindBoostedDropChance, calculateMagicFindBoostedDropChanceWithPetLuck
+
+
+__all__ = ['calculateMagicFindBoostedDropChance', 'calculateMagicFindBoostedDropChanceWithPetLuck']

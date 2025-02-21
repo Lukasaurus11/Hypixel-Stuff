@@ -1,12 +1,15 @@
 from time import time as time_current
 from requests import get
 from requests.models import Response
-from utils.data_processing import decodeData
-from utils.helper_functions import loadSecret, getUUID, dictToJSON, JSONToDict, returnFileLife, getProfileIDFromProfileName
+from utils import decodeData, loadSecret, dictToJSON, JSONToDict
+from utils.helper_functions import  returnFileLife
+from api import getUUID, getProfileIDFromProfileName
 
 """
 Changelog:
-    - 20-02-2025 - Redid a bunch of functions inside of the file
+    - 20-02-2025 
+        - Redid a bunch of functions inside of the file
+        - Moved file to the api/hypixel_requests folder
 """
 
 def getBazaarInformation() -> dict:
@@ -68,7 +71,7 @@ def getPlayerStatus(username: str) -> bool:
 
 def getProfileInformationByProfileName(profilesDict: dict, profileName: str=None) -> dict:
     """
-    Updated version of the previous function, getProfileByID,where the profile ID is gathered directly from the profiles
+    Updated version of the previous function, getProfileByID, where the profile ID is gathered directly from the profiles
     submitted, based on the profile we are interested in. This function will return the profile data for the given profile
 
     :param profilesDict: The profiles information (gathered from the getPlayerProfiles function)
@@ -132,7 +135,7 @@ def getMuseumData(profilesDict: dict, profileName: str=None) -> dict:
 
     :param profilesDict: The profiles information (gathered from the getPlayerProfiles function)
     :param profileName: The name of the profile to get the data of
-    :return:
+    :return: The museum data for the given profile
     """
     playerName: str = list(profilesDict.keys())[0]
     profileID: str = getProfileIDFromProfileName(profilesDict, profileName)

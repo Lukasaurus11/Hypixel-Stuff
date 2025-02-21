@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from utils.helper_functions import dictToJSON
+from utils.helper_functions.helper_functions import dictToJSON
 
 
 dictToJSON({"hypixel-token": "<Your Hypixel API Token>"}, "data/secrets.json")

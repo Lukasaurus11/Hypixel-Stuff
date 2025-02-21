@@ -1,9 +1,11 @@
 from random import random
-from utils.hypixel_code.constants.minion_constants import INFERNO_MINION_SPEED, INFERNO_MINION_TABLE, INFERNO_MINION_INVENTORY
+from utils.hypixel_code.constants.minion_constants import INFERNO_MINION, INFERNO_MINION_TABLE
 
 """
 Changelog:
-- 19/02/2025 - Added some sort of checking to see when the minion runs out of available slots for new items
+    - 19-02-2025 - Added some sort of checking to see when the minion runs out of available slots for new items
+    - 20-02-2025 - Fixed a small bug inside the simulation that was causing for it to report incorrect actionsUsed
+    - 21-02-2025 - Updated the code to work with the new constant structure (INFERNO_MINION)
 """
 
 
@@ -29,7 +31,7 @@ def calculateInfernoMinionSpeed(level: int, nMinion: int, minionExpanders: int, 
         2: 20
     }
 
-    speed: float = INFERNO_MINION_SPEED[level]
+    speed: float = INFERNO_MINION[level]['speed']
     speedBuff: float = 0.18 * nMinion if nMinion <= 10 else 1.8
     speedBuff += 0.05 * minionExpanders
     speedBuff += 0.2 * flycatchers
@@ -91,7 +93,7 @@ def simulateInfernoMinion(**params) -> dict:
     drops: dict = {key: 0 for key in dropTable.keys()}
     drops['Crude Gabagool'] = 0
 
-    availableSlots: int = INFERNO_MINION_INVENTORY[level] + params['storage']
+    availableSlots: int = INFERNO_MINION[level]['storage'] + params['storage']
 
     stackLimit: dict = {
         'Crude Gabagool': 64,
@@ -139,9 +141,10 @@ def simulateInfernoMinion(**params) -> dict:
                             else:
                                 slotsUsed += 1
 
-        # There's a small problem with this code, as it will say that all the slots are full even when some might
-        # still be able to receive items (e.g. if the last item is a stackable item). Will get fixed eventually
         if slotsUsed >= availableSlots and not flag:
+            if inventory['Crude Gabagool'] % stackLimit['Crude Gabagool'] != 0:
+                actionsUsed = actionsUsed + stackLimit['Crude Gabagool'] - inventory['Crude Gabagool'] % stackLimit['Crude Gabagool']
+
             drops['actionsUsed'] = actionsUsed
             drops['timeUsed'] = actionsUsed * minionSpeed
             flag = True

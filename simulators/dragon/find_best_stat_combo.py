@@ -1,9 +1,8 @@
 from numpy import exp as numpy_exp
 from numpy.random import choice, rand
 from utils.hypixel_code.constants.dragon_constants import DRAGONS
-from utils.hypixel_code.hypixel_requests import getBazaarInformation
-from simulators.helper_functions.calculator_helper_functions import (calculateMagicFindBoostedDropChance,
-                                                                     calculateMagicFindBoostedDropChanceWithPetLuck)
+from api import getBazaarInformation
+from simulators.helper_functions import calculateMagicFindBoostedDropChance, calculateMagicFindBoostedDropChanceWithPetLuck
 
 
 def calculateFightProfit(itemName: str, eyesPlaced: int) -> float:
