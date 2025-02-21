@@ -6,8 +6,9 @@ from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTags
 """
 Changelog:
     - 19-02-2025 - Finally got into fixing this file. Added extractJSONFields, renamed function to decodeData (from decodeInventory),
-    added decodeWardrobe. Updated function docstrings (as necessary).
+        added decodeWardrobe. Updated function docstrings (as necessary).
     - 20-02-2025 - Updated the function extractJSONFields to work with the new Profile JSON result.
+    - 21-02-2025 - Added error handling to the extractJSONFields function, decodeData, and decodeWardrobe.
 """
 
 def decodeItemData(itemData: dict) -> dict:
@@ -117,34 +118,38 @@ def mergeLoreTags(display: dict) -> str:
 
 def extractJSONFields(jsonData: dict, uuid: str, profiles: dict) -> dict:
     """
-    Extract different (predefined) information from a JSON dict for easy processing. Should probably add some sort of
-    checking in case the API for a component is off
+    Extract different (predefined) information from a JSON dict for easy processing.
 
     :param jsonData: The JSON dictionary to extract information from to then be processed
     :param uuid: The UUID of the player (in case they are in a coop)
     :param profiles: The profile slot of the player
     :return: The information from the JSON string
     """
+    profile: dict = jsonData.get('profile', {}).get('members', {}).get(uuid, {}).get('inventory', {})
 
     return {
-        'inventory': jsonData['profile']['members'][uuid]['inventory']['inv_contents']['data'],
-        'ender_chest': jsonData['profile']['members'][uuid]['inventory']['ender_chest_contents']['data'],
-        'potions': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['potion_bag']['data'],
-        'talismans': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['talisman_bag']['data'],
-        'fishing_bag': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['fishing_bag']['data'],
-        'sacks_bag': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['sacks_bag']['data'],
-        'quiver': jsonData['profile']['members'][uuid]['inventory']['bag_contents']['quiver']['data'],
-        'equipped_armor': jsonData['profile']['members'][uuid]['inventory']['inv_armor']['data'],
-        'equipped_equipment': jsonData['profile']['members'][uuid]['inventory']['equipment_contents']['data'],
-        'personal_vault': jsonData['profile']['members'][uuid]['inventory']['personal_vault_contents']['data'],
+        'inventory': profile.get('inv_contents', {}).get('data', ""),
+        'ender_chest': profile.get('ender_chest_contents', {}).get('data', ""),
+        'potions': profile.get('bag_contents', {}).get('potion_bag', {}).get('data', ""),
+        'talismans': profile.get('bag_contents', {}).get('talisman_bag', {}).get('data', ""),
+        'fishing_bag': profile.get('bag_contents', {}).get('fishing_bag', {}).get('data', ""),
+        'sacks_bag': profile.get('bag_contents', {}).get('sacks_bag', {}).get('data', ""),
+        'quiver': profile.get('bag_contents', {}).get('quiver', {}).get('data', ""),
+        'equipped_armor': profile.get('inv_armor', {}).get('data', ""),
+        'equipped_equipment': profile.get('equipment_contents', {}).get('data', ""),
+        'personal_vault': profile.get('personal_vault_contents', {}).get('data', ""),
         'backpack': {
-            'icons': {key: jsonData['profile']['members'][uuid]['inventory']['backpack_icons'][key]['data']
-                      for key in sorted(jsonData['profile']['members'][uuid]['inventory']['backpack_icons'], key=int)},
-            'content': {key: jsonData['profile']['members'][uuid]['inventory']['backpack_contents'][key]['data']
-                        for key in sorted(jsonData['profile']['members'][uuid]['inventory']['backpack_contents'],key=int)}
+            'icons': {
+                key: profile.get('backpack_icons', {}).get(key, {}).get('data', "")
+                for key in sorted(profile.get('backpack_icons', {}), key=int)
+            },
+            'content': {
+                key: profile.get('backpack_contents', {}).get(key, {}).get('data', "")
+                for key in sorted(profile.get('backpack_contents', {}), key=int)
+            }
         },
-        'equipped_wardrobe_slot': jsonData['profile']['members'][uuid]['inventory']['wardrobe_equipped_slot'],
-        'wardrobe': jsonData['profile']['members'][uuid]['inventory']['wardrobe_contents']['data'],
+        'equipped_wardrobe_slot': profile.get('wardrobe_equipped_slot', -1),
+        'wardrobe': profile.get('wardrobe_contents', {}).get('data', ""),
     }
 
 
@@ -171,6 +176,9 @@ def decodeData(raw: str) -> dict:
 
     :return: A dictionary representation of the NBT data
     """
+    if raw == "":
+        return {}
+
     nbtData: NBTFile = decodeBase64NBT(raw)
     inventory: dict = {}
 
@@ -191,6 +199,9 @@ def decodeWardrobe(wardrobeData: str, currentEquippedSlot: int, currentArmor: st
 
     :return: The dictionary representation of the wardrobe data
     """
+    if wardrobeData == "" or currentArmor == "" or currentEquippedSlot == -1:
+        return {}
+
     wardrobeItems: dict = decodeData(wardrobeData)
     wardrobePages: dict = {
         0: {index: armorPiece for index, armorPiece in wardrobeItems.items() if 0 <= index <= 35},
