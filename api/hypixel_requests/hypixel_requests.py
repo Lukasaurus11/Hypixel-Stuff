@@ -11,6 +11,7 @@ Changelog:
         - Redid a bunch of functions inside of the file
         - Moved file to the api/hypixel_requests folder
     - 21-02-2025 - Fixed a problem with getProfileInformationByProfileName, where the name was getting incorrectly passed when saving to file
+    - 24-02-2025 - Fixed formatting to be consistent with the rest of the project
 """
 
 def getBazaarInformation() -> dict:
@@ -24,8 +25,11 @@ def getBazaarInformation() -> dict:
         if time_current() - returnFileLife('data/hypixel_data/bazaar_data/bazaar.json') < 600:
             return JSONToDict('data/hypixel_data/bazaar_data/bazaar.json')
 
-    link: str = 'https://api.hypixel.net/v2/skyblock/bazaar'
-    response: Response = get(link, params={'key': loadSecret('data/secrets.json', 'hypixel-token')})
+    response: Response = get('https://api.hypixel.net/v2/skyblock/bazaar',
+                             params={
+                                 'key': loadSecret('data/secrets.json', 'hypixel-token')
+                             })
+
     if response.status_code == 200:
         data: dict = response.json()
 
@@ -49,18 +53,16 @@ def getPlayerStatus(username: str) -> bool:
     :param username: the username of the player to search for
     :return: A boolean value of the player's online status (False if there was an error with the request)
     """
-    link: str = 'https://api.hypixel.net/v2/status'
-    secretToken: str = loadSecret('data/secrets.json', 'hypixel-token')
     uuid: str = getUUID(username)
     if uuid == "":
         return False
 
-    params: dict = {
-        'key': secretToken,
-        'uuid': uuid
-    }
+    response: Response = get('https://api.hypixel.net/v2/status',
+                             params={
+                                    'key': loadSecret('data/secrets.json', 'hypixel-token'),
+                                    'uuid': uuid
+                             })
 
-    response: Response = get(link, params=params)
     if response.status_code == 200:
         print(response.json())
         return response.json()['session']['online']
@@ -112,6 +114,7 @@ def getPlayerProfiles(username: str) -> [dict, dict]:
                                     'key': loadSecret('data/secrets.json', 'hypixel-token'),
                                     'uuid': getUUID(username)
                              })
+
     if response.status_code == 200:
         data: dict = response.json()
         if not data['profiles']: return {}
@@ -171,8 +174,11 @@ def getGameNews() -> None:
     This function will fetch the news available from the API (it's something like the latest 10 updates)
     :return: Nothing, but could be changed to be a dictionary of the news articles, to then be furthered processed.
     """
-    link: str = 'https://api.hypixel.net/v2/skyblock/news'
-    response: Response = get(link, params={'key': loadSecret('data/secrets.json', 'hypixel-token')})
+    response: Response = get('https://api.hypixel.net/v2/skyblock/news',
+                             params={
+                                 'key': loadSecret('data/secrets.json', 'hypixel-token')
+                             })
+
     if response.status_code == 200:
         data: dict = response.json()
         dictToJSON(data, 'data/hypixel_data/news_data/news.json')

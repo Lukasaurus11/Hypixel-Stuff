@@ -87,7 +87,7 @@ def simulateInfernoMinion(**params) -> dict:
     minionSpeed: float = calculateInfernoMinionSpeed(level, nMinion, minionExpanders, flycatchers, beaconBuff,
                                                      fuelType, mithrilInfused, postCard, freewill)
 
-    actionsPerDay = ((60 * 60 * 24) / minionSpeed) // 2
+    actionsPerDay: float = ((60 * 60 * 24) / minionSpeed) // 2
 
     dropTable = INFERNO_MINION_TABLE['Eyesdrops'] if params['eyesDrop'] else INFERNO_MINION_TABLE['Base']
     drops: dict = {key: 0 for key in dropTable.keys()}
