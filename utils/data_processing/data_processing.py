@@ -2,6 +2,7 @@ from collections import defaultdict
 from re import sub as re_sub
 from nbt.nbt import NBTFile
 from utils.data_processing.nbt_processing import decodeBase64NBT, exploreNBTTagsIteratively, processSkullOwner
+from re import search as re_search
 
 """
 Changelog:
@@ -10,6 +11,7 @@ Changelog:
     - 20-02-2025 - Updated the function extractJSONFields to work with the new Profile JSON result.
     - 21-02-2025 - Added error handling to the extractJSONFields function, decodeData, and decodeWardrobe.
 """
+
 
 def decodeItemData(itemData: dict) -> dict:
     """
@@ -53,7 +55,6 @@ def decodeItemData(itemData: dict) -> dict:
                     extraAttributes['cakes'][i] = decodeItemData(cakeData)
 
                 del extraAttributes['new_year_cake_bag_data']
-
 
         if 'SkullOwner' in groupedData['tag']:
             skullOwnerData: dict = groupedData['tag']['SkullOwner']
@@ -221,3 +222,35 @@ def decodeWardrobe(wardrobeData: str, currentEquippedSlot: int, currentArmor: st
                                                           reversed(currentArmor.values())))
 
     return finalWardrobeInfo
+
+
+def searchBestiaryMobs(profileData: dict, uuid: str, mob: str = None):
+    """
+    This function will either return the bestiary data of a specific mob, or the bestiary data of all mobs in the profile
+        WIP function, will maybe be moved to  its own file in the future to match behavior from SkyHelper
+
+    :param profileData: The profile data of the player
+    :param uuid: The UUID of the player
+    :param mob: The mob to look for (default: None - return all mobs)
+    :return: The bestiary data we are interested in
+    """
+    bestiaryData: dict = profileData.get('profile', {}).get('members', {}).get(uuid, {}).get('bestiary', {}).get(
+        'kills', {})
+    if mob is None:
+        return bestiaryData
+
+    mob = mob.lower().replace(" ", "_")
+    matches: list = [mobName for mobName in bestiaryData if re_search(mob, mobName)]
+
+    mobTotal: int = sum(bestiaryData[mobName] for mobName in matches)
+    masterTotal: int = sum(bestiaryData[mobName] for mobName in matches if 'master' in mobName)
+
+    return {
+        "raw": {
+            mobName: bestiaryData[mobName] for mobName in matches
+        },
+        "mob_totals": {
+            "total": mobTotal,
+            "master": masterTotal if masterTotal > 0 else None,
+        }
+    }
